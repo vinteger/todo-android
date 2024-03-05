@@ -6,11 +6,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -111,9 +115,21 @@ fun AddItemButton(navController: NavController) {
 
 @Composable
 fun DisplayListItems(items: List<ListItem>) {
-    return items.forEach {
-        Text(it.item)
+    return items.forEach { thing ->
+        var style by remember { mutableStateOf(TextStyle(textDecoration = if (thing.isActive) TextDecoration.None else TextDecoration.LineThrough)) }
+        ClickableText(
+            text = AnnotatedString(thing.item),
+            style = style,
+            onClick = {
+                if (thing.isActive) {
+                    style = TextStyle(textDecoration = TextDecoration.LineThrough)
+                } else {
+                    style = TextStyle(textDecoration = TextDecoration.None)
+                }
+                thing.isActive = !thing.isActive
+            }
+        )
     }
 }
 
-data class ListItem(val item: String)
+data class ListItem(val item: String, var isActive: Boolean = true)

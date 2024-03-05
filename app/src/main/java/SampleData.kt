@@ -4,6 +4,6 @@ object SampleData {
         ListItem("Potato"),
         ListItem("Tomato"),
         ListItem("Work out"),
-        ListItem("Feed fish"),
+        ListItem("Feed fish", false),
     )
 }
