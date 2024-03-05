@@ -1,6 +1,6 @@
 import io.integral.todo.ListItem
 object SampleData {
-    val items = listOf(
+    val items = mutableListOf(
         ListItem("Potato"),
         ListItem("Tomato"),
         ListItem("Work out"),
