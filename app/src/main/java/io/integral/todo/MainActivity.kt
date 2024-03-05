@@ -115,21 +115,21 @@ fun AddItemButton(navController: NavController) {
 
 @Composable
 fun DisplayListItems(items: List<ListItem>) {
-    return items.forEach { thing ->
-        var style by remember { mutableStateOf(TextStyle(textDecoration = if (thing.isActive) TextDecoration.None else TextDecoration.LineThrough)) }
+    return items.forEach { item ->
+        var style by remember { mutableStateOf(TextStyle(textDecoration = if (item.isActive) TextDecoration.None else TextDecoration.LineThrough)) }
         ClickableText(
-            text = AnnotatedString(thing.item),
+            text = AnnotatedString(item.name),
             style = style,
             onClick = {
-                if (thing.isActive) {
+                if (item.isActive) {
                     style = TextStyle(textDecoration = TextDecoration.LineThrough)
                 } else {
                     style = TextStyle(textDecoration = TextDecoration.None)
                 }
-                thing.isActive = !thing.isActive
+                item.isActive = !item.isActive
             }
         )
     }
 }
 
-data class ListItem(val item: String, var isActive: Boolean = true)
+data class ListItem(val name: String, var isActive: Boolean = true)
