@@ -14,7 +14,7 @@ class RootTest {
     @Test
     fun myTest() {
         composeTestRule.setContent {
-            Root()
+            TodoListApp()
         }
 
         composeTestRule.onNodeWithText("Todo List").assertIsDisplayed()

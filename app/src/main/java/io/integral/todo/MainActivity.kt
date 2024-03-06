@@ -1,9 +1,9 @@
 package io.integral.todo
 
-import SampleData
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
@@ -11,29 +11,37 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import io.integral.todo.data.*
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val listItemDao = DatabaseClient.getDatabase(applicationContext).listItemDao()
+        val repository = ListItemRepository(listItemDao)
+        val listItemViewModel: ListItemViewModel by viewModels { ListItemViewModelFactory(repository) }
+
         setContent {
-            Root()
+            TodoListApp(listItemViewModel)
         }
     }
 }
 
 @Composable
-@Preview(showBackground = true)
-fun Root() {
+fun TodoListApp(listItemViewModel: ListItemViewModel) {
+    val listItems by listItemViewModel.listItems.observeAsState(initial = emptyList())
+
     val navController = rememberNavController()
     Scaffold { padding ->
         NavHost(
@@ -42,17 +50,23 @@ fun Root() {
             modifier = Modifier.padding(padding)
         ) {
             composable(route = NavigationItem.RootView.route) {
-                TodoListMainView(navController = navController)
+                TodoListMainView(
+                    navController = navController,
+                    listItems = listItems
+                )
             }
             composable(route = NavigationItem.AddListItem.route) {
-                AddListItem(navController = navController)
+                AddListItem(
+                    navController = navController,
+                    listItemViewModel
+                )
             }
         }
     }
 }
 
 @Composable
-fun TodoListMainView(navController: NavController) {
+fun TodoListMainView(navController: NavController, listItems: List<ListItem>) {
     Column(
         modifier = Modifier.padding(all = 10.dp)
     ) {
@@ -66,7 +80,7 @@ fun TodoListMainView(navController: NavController) {
             )
         }
         Column {
-            DisplayListItems(SampleData.items)
+            DisplayListItems(listItems)
         }
         Spacer(Modifier.weight(1f))
         Row {
@@ -77,11 +91,11 @@ fun TodoListMainView(navController: NavController) {
 }
 
 @Composable
-fun AddListItem(navController: NavController) {
+fun AddListItem(navController: NavController, listItemViewModel: ListItemViewModel) {
     var text by remember { mutableStateOf("") }
 
     fun addItemToList() {
-        SampleData.items.add(ListItem(text))
+        listItemViewModel.insertListItem(ListItem(name = text, active = true))
         navController.popBackStack()
     }
 
@@ -114,22 +128,20 @@ fun AddItemButton(navController: NavController) {
 }
 
 @Composable
-fun DisplayListItems(items: List<ListItem>) {
-    return items.forEach { item ->
-        var style by remember { mutableStateOf(TextStyle(textDecoration = if (item.isActive) TextDecoration.None else TextDecoration.LineThrough)) }
+fun DisplayListItems(listItems: List<ListItem>) {
+    return listItems.listIterator().forEach { item ->
+        var style by remember { mutableStateOf(TextStyle(textDecoration = if (item.active) TextDecoration.None else TextDecoration.LineThrough)) }
         ClickableText(
             text = AnnotatedString(item.name),
             style = style,
             onClick = {
-                if (item.isActive) {
+                if (item.active) {
                     style = TextStyle(textDecoration = TextDecoration.LineThrough)
                 } else {
                     style = TextStyle(textDecoration = TextDecoration.None)
                 }
-                item.isActive = !item.isActive
+                item.active = !item.active
             }
         )
     }
 }
-
-data class ListItem(val name: String, var isActive: Boolean = true)
