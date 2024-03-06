@@ -9,6 +9,14 @@ class ListItemViewModel(private val repository: ListItemRepository): ViewModel()
     fun insertListItem(listItem: ListItem) = viewModelScope.launch {
         repository.insertListItem(listItem)
     }
+
+    fun updateListItem(listItem: ListItem) = viewModelScope.launch {
+        repository.updateListItem(listItem)
+    }
+
+    fun deleteListItem(listItem: ListItem) = viewModelScope.launch {
+        repository.deleteListItem(listItem)
+    }
 }
 
 class ListItemViewModelFactory(private val repository: ListItemRepository) : ViewModelProvider.Factory {

@@ -8,4 +8,12 @@ class ListItemRepository(private val listItemDao: ListItemDao) {
     suspend fun insertListItem(listItem: ListItem) {
         listItemDao.insertListItem(listItem)
     }
+
+    suspend fun updateListItem(listItem: ListItem) {
+        listItemDao.updateListItem(listItem)
+    }
+
+    suspend fun deleteListItem(listItem: ListItem) {
+        listItemDao.deleteListItem(listItem)
+    }
 }

@@ -1,8 +1,6 @@
 package io.integral.todo.data
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -11,5 +9,11 @@ interface ListItemDao {
     fun getAllListItems(): Flow<List<ListItem>>
 
     @Insert
-    fun insertListItem(vararg listItem: ListItem)
+    suspend fun insertListItem(vararg listItem: ListItem)
+
+    @Update
+    suspend fun updateListItem(listItem: ListItem)
+
+    @Delete
+    suspend fun deleteListItem(listItem: ListItem)
 }

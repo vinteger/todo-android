@@ -4,15 +4,19 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
@@ -52,7 +56,8 @@ fun TodoListApp(listItemViewModel: ListItemViewModel) {
             composable(route = NavigationItem.RootView.route) {
                 TodoListMainView(
                     navController = navController,
-                    listItems = listItems
+                    listItems = listItems,
+                    listItemViewModel = listItemViewModel
                 )
             }
             composable(route = NavigationItem.AddListItem.route) {
@@ -66,7 +71,25 @@ fun TodoListApp(listItemViewModel: ListItemViewModel) {
 }
 
 @Composable
-fun TodoListMainView(navController: NavController, listItems: List<ListItem>) {
+fun TodoListMainView(navController: NavController, listItems: List<ListItem>, listItemViewModel: ListItemViewModel) {
+    val openAlertDialog = remember { mutableStateOf<ListItem?>(null) }
+    fun openDialogForListItem(li: ListItem) {
+        openAlertDialog.value = li
+    }
+
+    when {
+        openAlertDialog.value != null -> {
+            DeleteConfirmationDialog(
+                onDismissRequest = { openAlertDialog.value = null },
+                onConfirmation = {
+                    listItemViewModel.deleteListItem(openAlertDialog.value!!)
+                    openAlertDialog.value = null
+                },
+                dialogText = "Are you sure you want to delete \"${openAlertDialog.value!!.name}\"?",
+                dialogTitle = "Delete List Item"
+            )
+        }
+    }
     Column(
         modifier = Modifier.padding(all = 10.dp)
     ) {
@@ -79,8 +102,13 @@ fun TodoListMainView(navController: NavController, listItems: List<ListItem>) {
                 style = MaterialTheme.typography.titleLarge
             )
         }
+        Divider(
+            color = MaterialTheme.colorScheme.primary,
+            thickness = 1.dp,
+            modifier = Modifier.padding(top = 10.dp)
+        )
         Column {
-            DisplayListItems(listItems)
+            DisplayListItems(listItems, listItemViewModel, ::openDialogForListItem)
         }
         Spacer(Modifier.weight(1f))
         Row {
@@ -127,21 +155,89 @@ fun AddItemButton(navController: NavController) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun DisplayListItems(listItems: List<ListItem>) {
+fun DisplayListItems(
+    listItems: List<ListItem>,
+    listItemViewModel: ListItemViewModel,
+    showDeleteDialogForItem: (li: ListItem) -> Unit
+) {
+    val haptics = LocalHapticFeedback.current
+
     return listItems.listIterator().forEach { item ->
-        var style by remember { mutableStateOf(TextStyle(textDecoration = if (item.active) TextDecoration.None else TextDecoration.LineThrough)) }
-        ClickableText(
-            text = AnnotatedString(item.name),
+        var style by remember {
+            mutableStateOf(
+                TextStyle(
+                    textDecoration = if (item.active) TextDecoration.None else TextDecoration.LineThrough,
+                )
+            )
+        }
+        Text(
+            text = AnnotatedString("• ${item.name}"),
             style = style,
-            onClick = {
-                if (item.active) {
-                    style = TextStyle(textDecoration = TextDecoration.LineThrough)
-                } else {
-                    style = TextStyle(textDecoration = TextDecoration.None)
-                }
-                item.active = !item.active
-            }
+            modifier = Modifier
+                .padding(vertical = 10.dp)
+                .combinedClickable(
+                    onLongClick = {
+                        haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        showDeleteDialogForItem(item)
+                    },
+                    onLongClickLabel = "Delete list item",
+                    onClick = {
+                        style = if (item.active) {
+                            TextStyle(textDecoration = TextDecoration.LineThrough)
+                        } else {
+                            TextStyle(textDecoration = TextDecoration.None)
+                        }
+                        item.active = !item.active
+                        listItemViewModel.updateListItem(item)
+                    }
+                )
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DeleteConfirmationDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+) {
+    AlertDialog(
+        icon = {
+            Icon(
+                Icons.Rounded.Delete,
+                contentDescription = "Remove list item",
+            )
+        },
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
+                }
+            ) {
+                Text("Confirm")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Dismiss")
+            }
+        }
+    )
 }
