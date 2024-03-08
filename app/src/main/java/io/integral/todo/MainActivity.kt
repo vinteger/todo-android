@@ -14,6 +14,7 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -21,6 +22,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -127,12 +129,17 @@ fun AddListItem(navController: NavController, listItemViewModel: ListItemViewMod
         navController.popBackStack()
     }
 
-    Column {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         TextField(
             value = text,
             onValueChange = { text = it },
-            label = { Text("Add item") }
+            label = { Text("New list item") }
         )
+        Spacer(Modifier.padding(top = 20.dp))
         Button(onClick = { addItemToList() }) {
             Text("Add Item to List")
         }
@@ -192,7 +199,8 @@ fun DisplayListItems(
                         item.active = !item.active
                         listItemViewModel.updateListItem(item)
                     }
-                )
+                ),
+            fontSize = 18.sp
         )
     }
 }
