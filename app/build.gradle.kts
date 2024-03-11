@@ -65,13 +65,34 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.test.ext:junit-ktx:1.1.5")
     implementation("androidx.navigation:navigation-compose:2.7.7")
+
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
+
+    // Mockito Deps
+    androidTestImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+    androidTestImplementation("org.mockito:mockito-android:5.10.0")
+    testImplementation("org.mockito:mockito-core:5.10.0")
+//    testImplementation("org.mockito.kotlin:mockito-kotlin:4.1.0")
+
+    // Espresso Deps
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+    androidTestImplementation("androidx.test.espresso:espresso-contrib:3.3.0")
+    androidTestImplementation("androidx.test:core-ktx:1.5.0")
+    androidTestImplementation("androidx.test:core:1.5.0")
+    androidTestImplementation("androidx.test.ext:junit-ktx:1.1.5")
+    androidTestImplementation("androidx.navigation:navigation-testing:2.7.7")
+    androidTestImplementation("androidx.room:room-testing:2.6.1")
+
+    androidTestImplementation("androidx.room:room-testing:2.6.1")
+    androidTestImplementation("androidx.navigation:navigation-testing:2.7.7")
+
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.test:runner:1.4.0")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.08.00"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

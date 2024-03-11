@@ -18,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
@@ -151,7 +153,7 @@ fun AddListItem(navController: NavController, listItemViewModel: ListItemViewMod
 fun AddItemButton(navController: NavController) {
     Button(
         onClick = { navController.navigate(NavigationItem.AddListItem.route) },
-        modifier = Modifier.size(60.dp),
+        modifier = Modifier.size(60.dp).semantics { testTag = "add_button" },
         shape = CircleShape,
         contentPadding = PaddingValues(0.dp)
     ) {
@@ -180,7 +182,7 @@ fun DisplayListItems(
             )
         }
         Text(
-            text = AnnotatedString("• ${item.name}"),
+            text = AnnotatedString(item.name),
             style = style,
             modifier = Modifier
                 .padding(vertical = 10.dp)
